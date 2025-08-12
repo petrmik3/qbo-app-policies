@@ -1,91 +1,26 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QBO OAuth Callback</title>
-  <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
-    .card { max-width: 720px; margin: 0 auto; padding: 1.25rem 1.5rem; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-    h1 { font-size: 1.25rem; margin: 0 0 .5rem 0; }
-    p { color: #374151; }
-    code { background: #f3f4f6; padding: .2rem .35rem; border-radius: 6px; }
-    .row { display: flex; gap: .5rem; align-items: center; }
-    input { width: 100%; padding: .5rem .6rem; border: 1px solid #d1d5db; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    button, a.btn { padding: .55rem .8rem; border-radius: 10px; border: 1px solid #d1d5db; background: white; cursor: pointer; text-decoration: none; color: #111827; }
-    button:hover, a.btn:hover { background: #f9fafb; }
-    .muted { color: #6b7280; font-size: .9rem; }
-  </style>
+    <meta charset="UTF-8">
+    <title>QBO OAuth Redirect</title>
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const code = params.get("code");
+            const realmId = params.get("realmId");
+            const state = params.get("state");
+            if (code && realmId) {
+                const localUrl = `http://localhost:8000/callback?code=${encodeURIComponent(code)}&realmId=${encodeURIComponent(realmId)}&state=${encodeURIComponent(state || "")}`;
+                // Try to auto-redirect
+                window.location.href = localUrl;
+            } else {
+                document.getElementById("status").innerText = "Missing code or realmId in query parameters.";
+            }
+        })();
+    </script>
 </head>
 <body>
-  <div class="card">
-    <h1>QuickBooks OAuth Callback</h1>
-    <p>This page will attempt to forward your authorization code to the app running on <code>http://localhost:8000/callback</code>.</p>
-
-    <div id="status" class="muted">Attempting automatic handoff…</div>
-
-    <div style="margin-top: 1rem;">
-      <div class="row" style="margin-bottom:.5rem;">
-        <label style="width:120px;">code</label>
-        <input id="code" readonly>
-      </div>
-      <div class="row" style="margin-bottom:.5rem;">
-        <label style="width:120px;">realmId</label>
-        <input id="realmId" readonly>
-      </div>
-      <div class="row" style="margin-bottom:.5rem;">
-        <label style="width:120px;">state</label>
-        <input id="state" readonly>
-      </div>
-    </div>
-
-    <div style="margin-top: 1rem;">
-      <a id="openLocal" class="btn" href="#" target="_self">Open local callback</a>
-      <button id="copyCode">Copy code</button>
-    </div>
-
-    <p class="muted" style="margin-top:1rem;">If the browser blocks automatic redirect, click <strong>Open local callback</strong> or paste the code into the app when prompted.</p>
-  </div>
-
-<script>
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code') || '';
-  const realmId = params.get('realmId') || '';
-  const state = params.get('state') || '';
-
-  const codeEl = document.getElementById('code');
-  const realmEl = document.getElementById('realmId');
-  const stateEl = document.getElementById('state');
-  const statusEl = document.getElementById('status');
-  const openLocal = document.getElementById('openLocal');
-  const copyBtn = document.getElementById('copyCode');
-
-  codeEl.value = code;
-  realmEl.value = realmId;
-  stateEl.value = state;
-
-  const localUrl = 'http://localhost:8000/callback?code=' + encodeURIComponent(code)
-                 + '&realmId=' + encodeURIComponent(realmId)
-                 + '&state=' + encodeURIComponent(state);
-
-  openLocal.href = localUrl;
-
-  // Try automatic navigation to localhost (top-level redirect).
-  try {
-    window.location.replace(localUrl);
-  } catch (e) {
-    statusEl.textContent = 'Automatic handoff failed. Use the button below or paste the code into the app.';
-  }
-
-  copyBtn.addEventListener('click', function() {
-    navigator.clipboard.writeText(code).then(() => {
-      statusEl.textContent = 'Code copied to clipboard.';
-    }, () => {
-      statusEl.textContent = 'Copy failed — copy manually.';
-    });
-  });
-})();
-</script>
+    <h2>QuickBooks Authorization Complete</h2>
+    <p id="status">If you are not redirected automatically, please copy the URL from the address bar and paste it into the application.</p>
 </body>
 </html>
